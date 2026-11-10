@@ -40,7 +40,9 @@ export function resolveTarget(opts, { cwd, env, home }) {
 export function readTarget(path) {
   let st;
   try { st = lstatSync(path); } catch (e) {
-    if (e.code === "ENOENT") return { path, exists: false };
+    // ENOTDIR: a parent of the path is a file (POSIX; Windows reports ENOENT). Either way
+    // there is no file to read; writeAtomic reports the unusable path if it gets that far.
+    if (e.code === "ENOENT" || e.code === "ENOTDIR") return { path, exists: false };
     throw new UserError(`cannot read ${path} (${e.code})`);
   }
   let real = path;

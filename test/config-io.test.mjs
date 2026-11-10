@@ -73,9 +73,9 @@ test("readTarget refuses things it must not replace", () => {
     writeFileSync(join(dir, "latin1.json"), Buffer.from([0x7b, 0x22, 0xe9, 0x22, 0x7d]));
     assert.throws(() => readTarget(join(dir, "latin1.json")), userError(/not valid UTF-8/));
 
-    // a path whose parent is a file
+    // a path whose parent is a file: nothing to read; the write is what fails (see below)
     writeFileSync(join(dir, "file"), "x");
-    assert.throws(() => readTarget(join(dir, "file", "opencode.json")), userError(/cannot read/));
+    assert.equal(readTarget(join(dir, "file", "opencode.json")).exists, false);
   });
 });
 

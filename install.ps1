@@ -60,7 +60,11 @@ if ($List) { Invoke-Kit @($manager, "list") }
 if ($Search) { Invoke-Kit @($manager, "search", $Search) }
 if ($Superapp) { Invoke-Kit (@($manager, "stack", "superapp") + $writeOptions) }
 if ($Stack) { Invoke-Kit (@($manager, "stack", $Stack) + $writeOptions) }
-if ($Add) { Invoke-Kit (@($manager, "add") + $Add + $writeOptions) }
+if ($Add) {
+  # "-Add a,b" arrives as one string when the script is started with powershell -File.
+  $ids = @($Add | ForEach-Object { $_ -split "," } | Where-Object { $_ })
+  Invoke-Kit (@($manager, "add") + $ids + $writeOptions)
+}
 
 # interactive menu
 Write-Output "OpenCode super-app installer - pick one:"
