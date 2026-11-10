@@ -2,10 +2,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync, rmSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, symlinkSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { KIT, loadRegistry, loadTemplate, stackIds } from "../scripts/lib/registry.mjs";
+import { parseJsonc } from "../scripts/lib/jsonc.mjs";
 
 const MANAGER = join(KIT, "scripts", "mcp-manager.mjs");
 const run = (script, ...args) => spawnSync(process.execPath, [script, ...args], { encoding: "utf8" });
@@ -182,10 +183,11 @@ test("a parse failure never quotes the config file (it may hold secrets)", () =>
     const content = `{ "provider": { "apiKey": ${secret} } }`; // unquoted value: invalid JSON
     writeFileSync(cfg, content);
     const r = cli("add", "git", "--config", cfg);
-    assertCleanFailure(r, /nothing was changed/);
+    assertCleanFailure(r, /not valid JSON or JSONC \(unexpected character at line 1, column 27\); nothing was changed/);
     assert.ok(!r.stderr.includes(secret) && !r.stdout.includes(secret));
     assert.ok(!r.stderr.includes("apiKey"));
     assert.equal(readFileSync(cfg, "utf8"), content);
+    assert.deepEqual(readdirSync(dir), ["opencode.json"], "no backup or temp file for a refused edit");
   });
 });
 
@@ -206,6 +208,122 @@ test("--config=path is honoured and mistyped options are errors, never silently 
     assertCleanFailure(cliWith({ cwd }, "add", "git", "--config", other, "--global"), /either --global or --config/);
     assertCleanFailure(cliWith({ cwd }, "list", "--global"), /unknown option '--global'/);
     assert.deepEqual(readdirSync(cwd), []);
+  });
+});
+
+test("a config with comments and trailing commas keeps every one of them", () => {
+  inTempDir((dir) => {
+    const cfg = join(dir, "opencode.jsonc");
+    const original = [
+      "{",
+      '  "$schema": "https://opencode.ai/config.json",',
+      "  // my default model",
+      '  "model": "anthropic/claude-sonnet-4-5",',
+      '  "mcp": {',
+      "    /* work GitHub: do not touch */",
+      '    "github": { "type": "local", "enabled": false, "command": ["my-wrapper"], }, // mine',
+      "  },",
+      "}",
+      "",
+    ].join("\n");
+    writeFileSync(cfg, original);
+    const r = cli("stack", "superapp", "--config", cfg);
+    assert.equal(r.status, 0, r.stderr);
+    const after = readFileSync(cfg, "utf8");
+    for (const line of original.split("\n")) assert.ok(after.includes(line), `kept: ${line}`);
+    const parsed = parseJsonc(after);
+    assert.deepEqual(parsed.mcp.github, { type: "local", enabled: false, command: ["my-wrapper"] });
+    for (const id of stackIds("superapp")) assert.deepEqual(parsed.mcp[id], loadTemplate(id).mcp[id], id);
+    assert.equal(parsed.model, "anthropic/claude-sonnet-4-5");
+    // the previous version is saved byte for byte
+    assert.match(r.stdout, /Backup of the previous version: .*opencode\.jsonc\.bak/);
+    assert.equal(readFileSync(`${cfg}.bak`, "utf8"), original);
+  });
+});
+
+test("formatting, key order, large numbers and line endings of an existing file are preserved", () => {
+  inTempDir((dir) => {
+    const cfg = join(dir, "opencode.json");
+    const original = '{\r\n    "limit": 12345678901234567890,\r\n    "mcp": {\r\n        "mine": { "type": "local", "command": ["x"] }\r\n    },\r\n    "theme": "dark"\r\n}\r\n';
+    writeFileSync(cfg, original);
+    assert.equal(cli("add", "git", "--config", cfg).status, 0);
+    assert.equal(readFileSync(cfg, "utf8"),
+      '{\r\n    "limit": 12345678901234567890,\r\n    "mcp": {\r\n        "mine": { "type": "local", "command": ["x"] },\r\n'
+      + '        "git": {\r\n            "enabled": true,\r\n            "type": "local",\r\n            "command": [\r\n                "uvx",\r\n                "mcp-server-git"\r\n            ]\r\n        }\r\n'
+      + '    },\r\n    "theme": "dark"\r\n}\r\n');
+  });
+});
+
+test("backups accumulate instead of overwriting each other", () => {
+  inTempDir((dir) => {
+    const cfg = join(dir, "opencode.json");
+    assert.equal(cli("stack", "superapp", "--config", cfg).status, 0);
+    assert.deepEqual(readdirSync(dir), ["opencode.json"], "a new file needs no backup");
+    const afterStack = readFileSync(cfg, "utf8");
+    assert.equal(cli("add", "git", "--config", cfg).status, 0);
+    const afterGit = readFileSync(cfg, "utf8");
+    assert.equal(cli("add", "github", "--config", cfg).status, 0);
+    assert.equal(readFileSync(`${cfg}.bak`, "utf8"), afterStack);
+    assert.equal(readFileSync(`${cfg}.bak.1`, "utf8"), afterGit);
+    // a run that changes nothing writes nothing, so it makes no backup either
+    assert.equal(cli("add", "github", "--config", cfg).status, 0);
+    assert.deepEqual(readdirSync(dir).sort(), ["opencode.json", "opencode.json.bak", "opencode.json.bak.1"]);
+  });
+});
+
+test("an existing opencode.jsonc is edited instead of creating opencode.json next to it", () => {
+  inTempDir((dir) => {
+    writeFileSync(join(dir, "opencode.jsonc"), '{\n  // project config\n  "model": "x"\n}\n');
+    const r = cliWith({ cwd: dir }, "add", "git");
+    assert.equal(r.status, 0, r.stderr);
+    assert.ok(!existsSync(join(dir, "opencode.json")));
+    const text = readFileSync(join(dir, "opencode.jsonc"), "utf8");
+    assert.ok(text.includes("// project config"));
+    assert.ok(parseJsonc(text).mcp.git);
+  });
+});
+
+test("--global creates the config directory and honours XDG_CONFIG_HOME", () => {
+  inTempDir((dir) => {
+    const home = join(dir, "home"), xdg = join(dir, "xdg");
+    mkdirSync(home);
+    // HOME and USERPROFILE both point at the temp dir so no platform touches the real home
+    const env = { ...process.env, HOME: home, USERPROFILE: home };
+    delete env.XDG_CONFIG_HOME;
+    const r = cliWith({ env, cwd: dir }, "add", "git", "--global");
+    assert.equal(r.status, 0, r.stderr);
+    assert.ok(JSON.parse(readFileSync(join(home, ".config", "opencode", "opencode.json"), "utf8")).mcp.git);
+
+    const x = cliWith({ env: { ...env, XDG_CONFIG_HOME: xdg }, cwd: dir }, "add", "time", "--global");
+    assert.equal(x.status, 0, x.stderr);
+    assert.ok(JSON.parse(readFileSync(join(xdg, "opencode", "opencode.json"), "utf8")).mcp.time);
+    assert.deepEqual(readdirSync(dir).sort(), ["home", "xdg"], "nothing written to the working directory");
+  });
+});
+
+test("an empty config file is filled in like a new one", () => {
+  inTempDir((dir) => {
+    const cfg = join(dir, "opencode.json");
+    writeFileSync(cfg, "  \n");
+    assert.equal(cli("add", "git", "--config", cfg).status, 0);
+    assert.deepEqual(JSON.parse(readFileSync(cfg, "utf8")), { $schema: "https://opencode.ai/config.json", mcp: { git: loadTemplate("git").mcp.git } });
+  });
+});
+
+test("unusable config paths are refused with a clear error and nothing is written", () => {
+  inTempDir((dir) => {
+    mkdirSync(join(dir, "a-dir"));
+    assertCleanFailure(cli("add", "git", "--config", join(dir, "a-dir")), /is not a regular file/);
+
+    writeFileSync(join(dir, "utf16.json"), Buffer.from("{}", "utf16le"));
+    assertCleanFailure(cli("add", "git", "--config", join(dir, "utf16.json")), /not valid UTF-8/);
+
+    if (process.platform !== "win32") {
+      symlinkSync(join(dir, "gone.json"), join(dir, "dangling.json"));
+      assertCleanFailure(cli("add", "git", "--config", join(dir, "dangling.json")), /symlink to a file that does not exist/);
+      assert.ok(lstatSync(join(dir, "dangling.json")).isSymbolicLink());
+    }
+    assert.ok(!readdirSync(dir).some((f) => f.includes(".bak") || f.endsWith(".tmp")));
   });
 });
 

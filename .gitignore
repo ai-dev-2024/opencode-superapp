@@ -1,5 +1,8 @@
 # generated project config (may contain machine-specific paths) — never commit
 opencode.json
+opencode.jsonc
+opencode.json*.bak
+opencode.json*.bak.*
 tui.json
 .env
 *.log

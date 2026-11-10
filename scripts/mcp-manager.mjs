@@ -6,15 +6,19 @@
 //   node scripts/mcp-manager.mjs stack <name> [--config <path> | --global] [--force] [--dry-run]
 //
 // Config rule: your config wins. Only servers that are not in it yet are added. A server
-//   that is already there is kept as it is unless you pass --force. No other key is touched.
+//   that is already there is kept as it is unless you pass --force. No other key is touched,
+//   and an existing file is edited in place: comments, formatting and key order survive.
+// Write rule: the old file is copied to <file>.bak first (never over an earlier backup), then
+//   replaced atomically. See scripts/lib/config-io.mjs.
 // Env rule: NEVER writes secret values — only `{env:VAR}` placeholders + prints export hints.
 // Failures are one "error: ..." line (exit 1) and never quote the config file's contents.
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import { resolve } from "node:path";
 import { homedir } from "node:os";
 import { UserError } from "./lib/errors.mjs";
+import { resolveTarget, readTarget, writeAtomic } from "./lib/config-io.mjs";
+import { JsoncError, parseJsonc, editMcpServers } from "./lib/jsonc.mjs";
 import {
   CONFIG_SCHEMA_URL, loadRegistry, loadTemplate, listStacks, stackIds, searchRegistry, missingEnvFor, mergeServers, parseArgs,
+  sameJson,
 } from "./lib/registry.mjs";
 
 const WRITE_OPTIONS = { "--config": "value", "--global": "flag", "--force": "flag", "--dry-run": "flag" };
@@ -35,18 +39,26 @@ Example: node scripts/mcp-manager.mjs stack superapp
          node scripts/mcp-manager.mjs add github sentry context7 --global`;
 }
 
-function targetConfig(opts) {
-  if (opts["--global"] && opts["--config"]) throw new UserError("use either --global or --config, not both");
-  if (opts["--global"]) return resolve(homedir(), ".config", "opencode", "opencode.json");
-  return resolve(opts["--config"] || "opencode.json");
+// Parse an existing config. An empty file is treated as a config with nothing in it.
+function parseConfig(dest, target) {
+  if (!target.exists || target.text.replace(/^\uFEFF/, "").trim() === "") return { blank: true, config: {} };
+  try { return { blank: false, config: parseJsonc(target.text) }; } catch (e) {
+    if (!(e instanceof JsoncError)) throw e;
+    // Position only. The parser's message never quotes the file, which may hold secrets.
+    throw new UserError(`${dest} is not valid JSON or JSONC (${e.message}); nothing was changed`);
+  }
 }
 
-function readConfig(path) {
-  if (!existsSync(path)) return { exists: false, config: {} };
-  try { return { exists: true, config: JSON.parse(readFileSync(path, "utf8")) }; } catch {
-    // Deliberately no parser message: on Node 20+ it can quote part of the file.
-    throw new UserError(`${path} is not valid JSON; nothing was changed`);
-  }
+// The new file contents. A missing or empty file gets a fresh document; an existing one is
+// edited in place, then re-parsed to prove the edit produced exactly the intended config.
+function renderConfig(dest, target, blank, merged, entries) {
+  if (blank) return JSON.stringify({ $schema: CONFIG_SCHEMA_URL, ...merged.config }, null, 2) + "\n";
+  const pick = (ids) => Object.fromEntries(ids.map((id) => [id, entries[id]]));
+  const text = editMcpServers(target.text, { add: pick(merged.added), replace: pick(merged.overwritten) });
+  let ok = false;
+  try { ok = sameJson(parseJsonc(text), merged.config); } catch { ok = false; }
+  if (!ok) throw new UserError(`could not edit ${dest} safely (internal check failed); nothing was changed. Add the servers by hand from templates/<id>.json`);
+  return text;
 }
 
 function list(registry, stacks, args) {
@@ -104,9 +116,10 @@ function install(registry, stacks, cmd, args) {
   }
   for (const id of ids) if (!registry.some((r) => r.id === id)) throw new UserError(`Unknown id '${id}'. Run list/search first.`);
 
-  const dest = targetConfig(opts);
+  const dest = resolveTarget(opts, { cwd: process.cwd(), env: process.env, home: homedir() });
   const entries = Object.fromEntries(ids.map((id) => [id, loadTemplate(id).mcp[id]]));
-  const { exists, config } = readConfig(dest);
+  const target = readTarget(dest);
+  const { blank, config } = parseConfig(dest, target);
   let merged;
   try { merged = mergeServers(config, entries, { force: Boolean(opts["--force"]) }); } catch (e) {
     if (e instanceof UserError) throw new UserError(`${dest}: ${e.message}; nothing was changed`);
@@ -122,9 +135,9 @@ function install(registry, stacks, cmd, args) {
   else if (opts["--dry-run"]) console.log(`\nDry run: nothing written to ${dest}`);
   else {
     // "$schema" is only set on a file this command creates, never added to an existing one.
-    const out = exists ? merged.config : { $schema: CONFIG_SCHEMA_URL, ...merged.config };
-    writeFileSync(dest, JSON.stringify(out, null, 2) + "\n");
+    const { backup } = writeAtomic(target, renderConfig(dest, target, blank, merged, entries));
     console.log(`\nWrote ${dest}`);
+    if (backup) console.log(`Backup of the previous version: ${backup}`);
   }
 
   const missing = missingEnvFor(registry, ids);
