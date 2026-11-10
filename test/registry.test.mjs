@@ -4,9 +4,10 @@ import { cpSync, mkdtempSync, readdirSync, readFileSync, writeFileSync, rmSync }
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
-  KIT, SECRET_PATTERNS, loadRegistry, listStacks, stackIds, searchRegistry, missingEnvFor, mergeServers, positionalArgs,
+  KIT, SECRET_PATTERNS, loadRegistry, loadTemplate, listStacks, stackIds, searchRegistry, missingEnvFor, mergeServers, parseArgs,
   projectEntry, validateKit,
 } from "../scripts/lib/registry.mjs";
+import { UserError } from "../scripts/lib/errors.mjs";
 
 const registry = loadRegistry();
 
@@ -280,6 +281,14 @@ test("listStacks and stackIds read stacks/*.json", () => {
   assert.ok(stackIds("superapp").includes("context7"));
 });
 
+test("stack and template names cannot escape their directories", () => {
+  // "../templates/git" resolves to a real JSON file with an "mcp" key; it is still not a stack
+  assert.equal(stackIds("../templates/git"), null);
+  assert.equal(stackIds("../registry"), null);
+  assert.throws(() => loadTemplate("../stacks/superapp"), /unknown server id/);
+  assert.throws(() => loadTemplate("nope"), /unknown server id/);
+});
+
 test("searchRegistry is case-insensitive across id/title/description", () => {
   const hits = searchRegistry(registry, "POSTGRES").map((r) => r.id);
   assert.ok(hits.includes("postgres"));
@@ -294,18 +303,66 @@ test("missingEnvFor de-duplicates and only returns required vars", () => {
   assert.deepEqual(missingEnvFor(fake, ["a", "b", "unknown"]), [["K", "k"]]);
 });
 
-test("mergeServers adds/overwrites mcp keys and preserves everything else", () => {
-  const before = { model: "x", mcp: { keep: { type: "local" }, git: { old: true } } };
-  const { config, added, overwritten } = mergeServers(before, { git: { type: "local" }, time: { type: "local" } });
-  assert.deepEqual(added, ["time"]);
-  assert.deepEqual(overwritten, ["git"]);
-  assert.equal(config.model, "x");
-  assert.deepEqual(Object.keys(config.mcp).sort(), ["git", "keep", "time"]);
-  assert.equal(config.$schema, "https://opencode.ai/config.json");
-  assert.deepEqual(before.mcp.git, { old: true }, "input is not mutated");
+test("mergeServers adds new servers and leaves every other key alone", () => {
+  const before = { $schema: "./my-schema.json", model: "x", mcp: { keep: { type: "local" } } };
+  const snapshot = JSON.stringify(before);
+  const r = mergeServers(before, { git: { type: "local" }, time: { type: "local" } });
+  assert.deepEqual(r.added, ["git", "time"]);
+  assert.deepEqual([r.unchanged, r.kept, r.overwritten], [[], [], []]);
+  assert.deepEqual(r.config, { $schema: "./my-schema.json", model: "x", mcp: { keep: { type: "local" }, git: { type: "local" }, time: { type: "local" } } });
+  assert.equal(JSON.stringify(before), snapshot, "input is not mutated");
+  // no "$schema" is invented, and "mcp" is created when absent
+  assert.deepEqual(mergeServers({ model: "x" }, { git: { a: 1 } }).config, { model: "x", mcp: { git: { a: 1 } } });
 });
 
-test("positionalArgs skips flags and flag values", () => {
-  assert.deepEqual(positionalArgs(["github", "--config", "x.json", "sentry", "--global"]), ["github", "sentry"]);
-  assert.deepEqual(positionalArgs(["--config", "github"]), []);
+test("mergeServers keeps a server the user already has, unless forced", () => {
+  const mine = { type: "local", enabled: false, command: ["my", "wrapper"], environment: { GITHUB_HOST: "ghe.corp" } };
+  const template = { type: "local", enabled: true, command: ["docker"] };
+  const kept = mergeServers({ mcp: { github: mine } }, { github: template });
+  assert.deepEqual(kept.kept, ["github"]);
+  assert.deepEqual([kept.added, kept.overwritten, kept.unchanged], [[], [], []]);
+  assert.deepEqual(kept.config.mcp.github, mine);
+
+  const forced = mergeServers({ mcp: { github: mine } }, { github: template }, { force: true });
+  assert.deepEqual(forced.overwritten, ["github"]);
+  assert.deepEqual(forced.config.mcp.github, template);
+
+  // an identical entry is reported as unchanged either way (key order does not matter)
+  const same = mergeServers({ mcp: { github: { command: ["docker"], enabled: true, type: "local" } } }, { github: template }, { force: true });
+  assert.deepEqual(same.unchanged, ["github"]);
+  assert.deepEqual(same.overwritten, []);
+});
+
+test("mergeServers refuses configs it cannot safely extend", () => {
+  const entry = { git: { type: "local" } };
+  for (const bad of [null, undefined, [], [1, 2], "str", 42, true]) {
+    assert.throws(() => mergeServers(bad, entry), (e) => e instanceof UserError && /root must be a JSON object/.test(e.message), JSON.stringify(bad));
+  }
+  for (const mcp of ["abc", [{ a: 1 }], 5, null, false]) {
+    assert.throws(() => mergeServers({ mcp }, entry), (e) => e instanceof UserError && /"mcp" must be a JSON object/.test(e.message), JSON.stringify(mcp));
+  }
+  assert.throws(() => mergeServers({ mcp: { servers: { git: {} } } }, entry), (e) => e instanceof UserError && /mcp\.servers/.test(e.message));
+});
+
+test("mergeServers treats inherited names as absent, not as existing servers", () => {
+  // every object "has" a constructor; that must not look like an installed server
+  const r = mergeServers({ mcp: {} }, { constructor: { type: "local" } });
+  assert.deepEqual(r.added, ["constructor"]);
+});
+
+test("parseArgs separates options from positionals and rejects anything unknown", () => {
+  const spec = { "--config": "value", "--global": "flag" };
+  assert.deepEqual(parseArgs(["github", "--config", "x.json", "sentry", "--global"], spec), { opts: { "--config": "x.json", "--global": true }, positionals: ["github", "sentry"] });
+  assert.deepEqual(parseArgs(["github", "--config=x.json"], spec), { opts: { "--config": "x.json" }, positionals: ["github"] });
+  assert.deepEqual(parseArgs(["--config=a=b.json"], spec).opts, { "--config": "a=b.json" });
+  assert.deepEqual(parseArgs([], spec), { opts: {}, positionals: [] });
+  const fails = (argv, re) => assert.throws(() => parseArgs(argv, spec), (e) => e instanceof UserError && re.test(e.message), argv.join(" "));
+  fails(["github", "--gloabl"], /unknown option '--gloabl'/);
+  fails(["github", "-g"], /unknown option '-g'/);
+  fails(["--config"], /'--config' needs a value/);
+  fails(["--config", "--global"], /'--config' needs a value/);
+  fails(["--config="], /'--config' needs a value/);
+  fails(["--global=yes"], /'--global' does not take a value/);
+  fails(["--global", "--global"], /given more than once/);
+  fails(["--toString"], /unknown option '--toString'/);
 });

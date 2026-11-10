@@ -4,6 +4,7 @@ import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { validateSchema } from "./schema.mjs";
+import { UserError } from "./errors.mjs";
 
 export const KIT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 export const CONFIG_SCHEMA_URL = "https://opencode.ai/config.json";
@@ -30,8 +31,10 @@ const CREDENTIAL_NAME = /TOKEN|KEY|SECRET|PASS|AUTH|CREDENTIAL/i;
 const SHELL_PLACEHOLDER = /\$\{[^}]*\}|\$[A-Za-z_][A-Za-z0-9_]*|%[A-Za-z_][A-Za-z0-9_]*%/;
 const ENV_PLACEHOLDER = /\{env:([^}]*)\}/g;
 
+const ID_PATTERN = /^[a-z0-9][a-z0-9_-]*$/;
+
 const readJson = (p) => JSON.parse(readFileSync(p, "utf8"));
-const isPlainObject = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
+export const isPlainObject = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
 
 // Stable JSON with sorted keys, for order-insensitive deep comparison.
 function canon(v) {
@@ -39,7 +42,7 @@ function canon(v) {
   if (isPlainObject(v)) return `{${Object.keys(v).sort().map((k) => `${JSON.stringify(k)}:${canon(v[k])}`).join(",")}}`;
   return JSON.stringify(v);
 }
-const sameJson = (a, b) => canon(a) === canon(b);
+export const sameJson = (a, b) => canon(a) === canon(b);
 
 export function loadRegistry(kit = KIT) { return readJson(resolve(kit, "registry.json")); }
 export function loadSchema(kit = KIT) { return readJson(resolve(kit, "schema", "registry.schema.json")); }
@@ -50,15 +53,15 @@ export function listStacks(kit = KIT) {
 }
 
 // Server ids a stack installs (stacks/<name>.json is the source of truth). null if unknown.
+// The name must be one of the files in stacks/, so "../templates/git" is not a stack.
 export function stackIds(name, kit = KIT) {
-  const p = resolve(kit, "stacks", `${name}.json`);
-  if (!existsSync(p)) return null;
-  return Object.keys(readJson(p).mcp || {});
+  if (!listStacks(kit).includes(name)) return null;
+  return Object.keys(readJson(resolve(kit, "stacks", `${name}.json`)).mcp || {});
 }
 
 export function loadTemplate(id, kit = KIT) {
   const p = resolve(kit, "templates", `${id}.json`);
-  if (!existsSync(p)) throw new Error(`unknown server id: ${id} (no templates/${id}.json)`);
+  if (!ID_PATTERN.test(String(id)) || !existsSync(p)) throw new Error(`unknown server id: ${id} (no templates/${id}.json)`);
   return readJson(p);
 }
 
@@ -78,25 +81,55 @@ export function missingEnvFor(registry, ids) {
   return [...out.entries()];
 }
 
-// Merge template entries into an opencode config. Never deletes unrelated keys.
-export function mergeServers(config, entries) {
-  const cfg = { ...config, $schema: "https://opencode.ai/config.json", mcp: { ...(config.mcp || {}) } };
-  const added = [], overwritten = [];
-  for (const [id, entry] of Object.entries(entries)) {
-    (id in cfg.mcp ? overwritten : added).push(id);
-    cfg.mcp[id] = entry;
+// Decide what installing `entries` into an OpenCode config would change. Pure: returns a new
+// config and never mutates the input.
+//
+// The user's config always wins. A server id that is already present is KEPT as it is, even
+// if it differs from the template, unless `force` is set. Nothing else in the config is
+// touched: no other key is added, removed or rewritten (not even "$schema").
+//
+// Throws UserError when the config is not something this kit can safely extend.
+export function mergeServers(config, entries, { force = false } = {}) {
+  if (!isPlainObject(config)) throw new UserError("the config root must be a JSON object");
+  const hasMcp = Object.hasOwn(config, "mcp");
+  if (hasMcp && !isPlainObject(config.mcp)) throw new UserError('"mcp" must be a JSON object');
+  const mcp = hasMcp ? { ...config.mcp } : {};
+  if (Object.hasOwn(mcp, "servers")) {
+    throw new UserError('this config uses the newer "mcp.servers" layout, which this kit does not write yet; '
+      + "add the servers under mcp.servers by hand (see templates/<id>.json) or with `opencode mcp add`");
   }
-  return { config: cfg, added, overwritten };
+  const added = [], unchanged = [], kept = [], overwritten = [];
+  for (const [id, entry] of Object.entries(entries)) {
+    if (!Object.hasOwn(mcp, id)) { added.push(id); mcp[id] = entry; }
+    else if (sameJson(mcp[id], entry)) unchanged.push(id);
+    else if (force) { overwritten.push(id); mcp[id] = entry; }
+    else kept.push(id);
+  }
+  return { config: { ...config, mcp }, added, unchanged, kept, overwritten };
 }
 
-// Positional args for `add`, skipping flags and the values of flags that take one.
-export function positionalArgs(argv, valueFlags = ["--config"]) {
-  const out = [];
+// Strict command-line parsing. `spec` maps each accepted option to "flag" or "value".
+// Accepts "--name value" and "--name=value". Anything starting with "-" that is not in the
+// spec is an error, so a typo such as --gloabl can never be silently ignored.
+export function parseArgs(argv, spec = {}) {
+  const opts = {}, positionals = [];
   for (let i = 0; i < argv.length; i++) {
-    if (valueFlags.includes(argv[i])) { i++; continue; }
-    if (!argv[i].startsWith("--")) out.push(argv[i]);
+    const arg = argv[i];
+    if (!arg.startsWith("-") || arg === "-") { positionals.push(arg); continue; }
+    const eq = arg.startsWith("--") ? arg.indexOf("=") : -1;
+    const name = eq === -1 ? arg : arg.slice(0, eq);
+    if (!Object.hasOwn(spec, name)) throw new UserError(`unknown option '${name}'`);
+    if (Object.hasOwn(opts, name)) throw new UserError(`option '${name}' given more than once`);
+    if (spec[name] === "flag") {
+      if (eq !== -1) throw new UserError(`option '${name}' does not take a value`);
+      opts[name] = true;
+    } else {
+      const value = eq === -1 ? argv[++i] : arg.slice(eq + 1);
+      if (value === undefined || value === "" || (eq === -1 && value.startsWith("-"))) throw new UserError(`option '${name}' needs a value`);
+      opts[name] = value;
+    }
   }
-  return out;
+  return { opts, positionals };
 }
 
 // The OpenCode config entry a registry entry stands for. templates/<id>.json must hold

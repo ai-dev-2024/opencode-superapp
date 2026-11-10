@@ -21,9 +21,11 @@ node scripts/mcp-manager.mjs stack web-dev           # add a full stack on top
 node scripts/mcp-manager.mjs stack devops --global   # ~/.config/opencode/opencode.json
 ```
 
-Combine stacks by running the command twice — keys merge, nothing is deleted.
-If two stacks share an id (e.g. `github` in web-dev + devops) the last run wins,
-which is safe because templates are identical.
+Combine stacks by running the command twice — new servers are added, nothing is deleted.
+If two stacks share an id (e.g. `github` in web-dev + devops) the one already in your
+config stays, which is safe because every stack entry is identical to its template (the
+validator checks this). A server you have customised is never replaced unless you pass
+`--force`.
 
 Keep sessions lean: after installing a stack, disable the heavy hitters globally
 and re-enable per-agent (pattern in `opencode.example.json`):

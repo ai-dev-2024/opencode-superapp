@@ -14,5 +14,5 @@ if (stats.servers !== undefined) {
   console.log(`ok: registry has ${stats.servers} entries (${stats.local} local, ${stats.remote} remote), ${stats.templates} templates`);
   for (const [name, n] of Object.entries(stats.stacks)) console.log(`ok: stack ${name}: ${n} servers`);
 }
-if (errors.length) { console.error(`\n${errors.length} check(s) failed`); process.exit(1); }
-console.log("\nAll checks passed.");
+if (errors.length) { console.error(`\n${errors.length} check(s) failed`); process.exitCode = 1; }
+else console.log("\nAll checks passed.");

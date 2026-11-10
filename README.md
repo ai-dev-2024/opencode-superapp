@@ -33,8 +33,9 @@ ever writing a secret to disk.
   [OpenCode MCP config format](https://opencode.ai/docs/mcp-servers/).
 - **7 stacks**: `superapp`, `web-dev`, `data-analysis`, `devops`, `ai-search`, `productivity` and `testing`.
   The `superapp` stack is 8 servers with no required API keys. The tests check that.
-- **Searchable CLI** (`scripts/mcp-manager.mjs`): `list`, `search`, `add` and `stack`. It
-  deep-merges the `mcp` section and never deletes your other config keys.
+- **Searchable CLI** (`scripts/mcp-manager.mjs`): `list`, `search`, `add` and `stack`. It only
+  adds servers you do not have yet. A server already in your config is kept as it is unless
+  you pass `--force`, and no other key is touched.
 - **Secret hygiene**: templates use only `{env:VAR}` placeholders. The installer prints
   `export` hints and never writes key values. The validator rejects literal credentials and
   token-shaped strings (GitHub, Slack, AWS, Stripe, GitLab, `sk-` keys, private keys) in the
@@ -160,7 +161,7 @@ flowchart LR
   S --> V --> L
   L --> M
   L --> VA
-  M -->|"deep-merge mcp keys, env placeholders only"| O[("opencode.json")]
+  M -->|"add missing servers, env placeholders only"| O[("opencode.json")]
   O --> OC[OpenCode]
 ```
 
