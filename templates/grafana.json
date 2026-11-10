@@ -13,7 +13,9 @@
         "GRAFANA_URL",
         "-e",
         "GRAFANA_API_KEY",
-        "grafana/mcp-grafana:latest"
+        "grafana/mcp-grafana:latest",
+        "-t",
+        "stdio"
       ],
       "environment": {
         "GRAFANA_URL": "{env:GRAFANA_URL}",

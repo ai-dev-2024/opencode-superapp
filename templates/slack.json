@@ -7,7 +7,7 @@
       "command": [
         "npx",
         "-y",
-        "@corail-research/slack-mcp-server"
+        "@zencoderai/slack-mcp-server"
       ],
       "environment": {
         "SLACK_BOT_TOKEN": "{env:SLACK_BOT_TOKEN}",

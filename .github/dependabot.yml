@@ -1,0 +1,10 @@
+# The project has no npm dependencies. The only thing to keep current is the commit SHAs the
+# workflows pin their actions to.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: ci

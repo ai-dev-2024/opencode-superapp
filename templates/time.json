@@ -5,9 +5,8 @@
       "enabled": true,
       "type": "local",
       "command": [
-        "npx",
-        "-y",
-        "@modelcontextprotocol/server-time"
+        "uvx",
+        "mcp-server-time"
       ]
     }
   }

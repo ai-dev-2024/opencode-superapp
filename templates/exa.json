@@ -4,7 +4,7 @@
     "exa": {
       "enabled": true,
       "type": "remote",
-      "url": "https://mcp.exa.ai/sse",
+      "url": "https://mcp.exa.ai/mcp",
       "headers": {
         "Authorization": "Bearer {env:EXA_API_KEY}"
       },

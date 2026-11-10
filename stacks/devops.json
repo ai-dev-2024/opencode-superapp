@@ -36,7 +36,7 @@
       "type": "local",
       "command": [
         "uvx",
-        "awslabs.aws-docs-mcp-server@latest"
+        "awslabs.aws-documentation-mcp-server@latest"
       ],
       "environment": {
         "AWS_REGION": "{env:AWS_REGION}"
@@ -60,7 +60,8 @@
         "npx",
         "-y",
         "@cloudflare/mcp-server-cloudflare@latest",
-        "init"
+        "run",
+        "{env:CLOUDFLARE_ACCOUNT_ID}"
       ],
       "environment": {
         "CLOUDFLARE_API_TOKEN": "{env:CLOUDFLARE_API_TOKEN}",
@@ -69,12 +70,17 @@
     },
     "digitalocean": {
       "enabled": true,
-      "type": "remote",
-      "url": "https://mcp.digitalocean.com/sse",
-      "headers": {
-        "Authorization": "Bearer {env:DIGITALOCEAN_API_TOKEN}"
-      },
-      "oauth": false
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@digitalocean/mcp",
+        "--services",
+        "apps,droplets,databases"
+      ],
+      "environment": {
+        "DIGITALOCEAN_API_TOKEN": "{env:DIGITALOCEAN_API_TOKEN}"
+      }
     },
     "grafana": {
       "enabled": true,
@@ -88,7 +94,9 @@
         "GRAFANA_URL",
         "-e",
         "GRAFANA_API_KEY",
-        "grafana/mcp-grafana:latest"
+        "grafana/mcp-grafana:latest",
+        "-t",
+        "stdio"
       ],
       "environment": {
         "GRAFANA_URL": "{env:GRAFANA_URL}",
@@ -98,7 +106,7 @@
     "datadog": {
       "enabled": true,
       "type": "remote",
-      "url": "https://mcp.datadoghq.com/api/v2/mcp",
+      "url": "https://mcp.datadoghq.com/api/unstable/mcp-server/mcp",
       "headers": {
         "DD-API-KEY": "{env:DD_API_KEY}",
         "DD-APPLICATION-KEY": "{env:DD_APP_KEY}"

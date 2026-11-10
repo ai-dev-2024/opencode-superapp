@@ -26,7 +26,7 @@ Minimal local (`templates/fetch.json` pattern):
 {
   "$schema": "https://opencode.ai/config.json",
   "mcp": {
-    "fetch": { "type": "local", "command": ["npx", "-y", "@modelcontextprotocol/server-fetch"], "enabled": true }
+    "fetch": { "type": "local", "command": ["uvx", "mcp-server-fetch"], "enabled": true }
   }
 }
 ```
@@ -163,7 +163,7 @@ blow the budget. Pattern (see `opencode.example.json`):
 
 i.e. disable heavy servers globally, opt in per-agent. `*` matches any suffix;
 MCP tools are always `<server>_<tool>`. Keep ≤ 8 enabled servers per session;
-prefer remote keyless `fetch`/`time` over heavier equivalents for trivial tasks.
+prefer the small keyless `fetch`/`time` servers over heavier equivalents for trivial tasks.
 
 ## 5. Windows notes
 

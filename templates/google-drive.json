@@ -10,9 +10,8 @@
         "@modelcontextprotocol/server-gdrive"
       ],
       "environment": {
-        "GOOGLE_CLIENT_ID": "{env:GOOGLE_CLIENT_ID}",
-        "GOOGLE_CLIENT_SECRET": "{env:GOOGLE_CLIENT_SECRET}",
-        "GDRIVE_CREDS_PATH": "{env:GDRIVE_CREDS_PATH}"
+        "GDRIVE_OAUTH_PATH": "{env:GDRIVE_OAUTH_PATH}",
+        "GDRIVE_CREDENTIALS_PATH": "{env:GDRIVE_CREDS_PATH}"
       }
     }
   }

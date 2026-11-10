@@ -3,15 +3,9 @@
   "mcp": {
     "prisma": {
       "enabled": true,
-      "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "@prisma/mcp-server"
-      ],
-      "environment": {
-        "DATABASE_URL": "{env:DATABASE_URL}"
-      }
+      "type": "remote",
+      "url": "https://mcp.prisma.io/mcp",
+      "oauth": {}
     }
   }
 }
