@@ -1,4 +1,4 @@
-# Registry — 50 MCP servers
+# Registry — 51 MCP servers
 
 <!-- Generated from registry.json by scripts/gen-registry-md.mjs. Do not edit by hand: run `npm run gen:registry`. -->
 
@@ -56,6 +56,7 @@ Search: Ctrl+F this file, or run `node scripts/mcp-manager.mjs search <query>`. 
 | 48 | `obsidian` | local | Obsidian | productivity | OBSIDIAN_VAULT_PATH | `npx -y mcp-obsidian` |
 | 49 | `shadcn` | local | shadcn/ui | web-dev | — | `npx shadcn@latest mcp` |
 | 50 | `youtube-transcript` | local | YouTube Transcript | ai-search | — | `uvx mcp-youtube-transcript` |
+| 51 | `agent-qa` | local | agent-qa | testing | — | `npx -y agent-qa mcp` |
 
 ## Notes
 
@@ -159,3 +160,5 @@ Search: Ctrl+F this file, or run `node scripts/mcp-manager.mjs search <query>`. 
   `npx shadcn@latest mcp` — template `templates/shadcn.json`
 - **youtube-transcript** (local) — Fetch captions/transcripts for summarization (uvx, Python).  
   `uvx mcp-youtube-transcript` — template `templates/youtube-transcript.json`
+- **agent-qa** (local) — Natural-language web, Android and iOS QA with persistent memidex memory and validated self-improvement; requires Node.js 24+ and a configured agent-qa project.  
+  `npx -y agent-qa mcp` — template `templates/agent-qa.json`

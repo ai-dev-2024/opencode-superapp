@@ -1207,5 +1207,25 @@
     "envVars": [],
     "toolsPrefix": "youtube-transcript_*",
     "install": "uvx mcp-youtube-transcript"
+  },
+  {
+    "id": "agent-qa",
+    "title": "agent-qa",
+    "description": "Natural-language web, Android and iOS QA with persistent memidex memory and validated self-improvement; requires Node.js 24+ and a configured agent-qa project.",
+    "type": "local",
+    "category": "Test",
+    "stacks": [
+      "testing"
+    ],
+    "command": [
+      "npx",
+      "-y",
+      "agent-qa",
+      "mcp"
+    ],
+    "environment": {},
+    "envVars": [],
+    "toolsPrefix": "agent-qa_*",
+    "install": "npx -y agent-qa mcp"
   }
 ]
