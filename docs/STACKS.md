@@ -11,7 +11,9 @@ Pre-composed `opencode.json` fragments in `stacks/`. Each file is a complete
 | `devops.json` | containers, IaC, clouds, on-call | docker, kubernetes, terraform, aws-docs, azure, cloudflare, digitalocean, grafana, datadog, sentry, github, gitlab (12) |
 | `ai-search.json` | ground answers in live docs/web | brave-search, tavily, exa, firecrawl, fetch, context7, gh_grep, sequential-thinking, memory, youtube-transcript (10) |
 | `productivity.json` | tickets, docs, chat | slack, discord, linear, notion, atlassian-jira, atlassian-confluence, google-drive, obsidian, time (9) |
-| `testing.json` | browser QA + perf | playwright, puppeteer, chrome-devtools, firecrawl, everything, time, fetch (7) |
+| `testing.json` | browser QA + perf | playwright, puppeteer, chrome-devtools, firecrawl, everything, time, fetch, agent-qa (8) |
+
+[agent-qa](https://vostride.com) adds natural-language web and mobile QA with persistent memidex memory and validated self-improvement. It requires Node.js 24+, a configured agent-qa project, a compatible model and a browser/device environment; see the [official setup guide](https://vostride.com/docs/agent-qa/agent-quickstart). FSL-1.1-ALv2 applies, with model/device costs separate.
 
 Install:
 

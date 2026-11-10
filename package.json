@@ -1,7 +1,7 @@
 {
   "name": "opencode-superapp",
   "version": "1.0.0",
-  "description": "Curated registry of 50 MCP servers, 7 one-command stacks and a zero-dependency installer CLI for OpenCode",
+  "description": "Curated registry of 51 MCP servers, 7 one-command stacks and a zero-dependency installer CLI for OpenCode",
   "type": "module",
   "license": "MIT",
   "repository": {

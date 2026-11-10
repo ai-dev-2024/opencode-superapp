@@ -9,7 +9,7 @@
   <img src="https://img.shields.io/github/languages/top/muhib-karim/opencode-superapp" alt="Top language">
   <a href="https://github.com/muhib-karim/opencode-superapp/actions/workflows/ci.yml"><img src="https://github.com/muhib-karim/opencode-superapp/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://github.com/muhib-karim/opencode-superapp/actions/workflows/upstream.yml"><img src="https://github.com/muhib-karim/opencode-superapp/actions/workflows/upstream.yml/badge.svg" alt="Upstream check"></a>
-  <a href="registry.md"><img src="https://img.shields.io/badge/MCP-50_servers-blue" alt="50 MCP servers"></a>
+  <a href="registry.md"><img src="https://img.shields.io/badge/MCP-51_servers-blue" alt="51 MCP servers"></a>
   <a href="docs/STACKS.md"><img src="https://img.shields.io/badge/stacks-7-green" alt="7 stacks"></a>
   <a href="package.json"><img src="https://img.shields.io/badge/node-%3E%3D18-brightgreen" alt="Node >= 18"></a>
   <a href="package.json"><img src="https://img.shields.io/badge/dependencies-0-brightgreen" alt="Zero dependencies"></a>
@@ -23,7 +23,7 @@ Out of the box it has no *tools*: no repo access, memory, live docs, web search 
 Those come from [MCP (Model Context Protocol)](https://modelcontextprotocol.io) servers.
 
 **OpenCode SuperApp** fills that gap. It is a curated, validated registry of
-**50 MCP servers** (36 local, 14 remote), grouped into **7 ready-made stacks**, plus a
+**51 MCP servers** (37 local, 14 remote), grouped into **7 ready-made stacks**, plus a
 **zero-dependency Node.js CLI** that adds them to your `opencode.json` without overwriting
 anything of yours and without ever writing a secret to disk.
 
@@ -111,7 +111,7 @@ Verify inside OpenCode with `opencode mcp list`.
 
 ```bash
 node scripts/mcp-manager.mjs --help                     # usage
-node scripts/mcp-manager.mjs list                       # all 50 servers
+node scripts/mcp-manager.mjs list                       # all 51 servers
 node scripts/mcp-manager.mjs list --stack devops        # servers in a stack
 node scripts/mcp-manager.mjs list --type remote --json  # machine-readable
 node scripts/mcp-manager.mjs search postgres            # search id/title/description/category
@@ -133,7 +133,7 @@ npm script shortcuts: `npm run superapp`, `npm run list`, `npm run search -- <q>
 | `devops` | 12 | docker, kubernetes, terraform, aws-docs, azure, cloudflare, digitalocean, grafana, datadog, sentry |
 | `ai-search` | 10 | brave, tavily, exa, firecrawl, fetch, context7, gh_grep, youtube-transcript |
 | `productivity` | 9 | slack, discord, linear, notion, jira, confluence, google-drive, obsidian |
-| `testing` | 7 | playwright, puppeteer, chrome-devtools, firecrawl, everything (reference server) |
+| `testing` | 8 | playwright, puppeteer, chrome-devtools, firecrawl, everything (reference server), [agent-qa](https://vostride.com) |
 
 Stacks combine: run the command again with another stack and the new servers are added. Full details are in [docs/STACKS.md](docs/STACKS.md).
 
@@ -180,7 +180,7 @@ something silently ignored.
 ```mermaid
 flowchart LR
   subgraph Data["Kit data (JSON)"]
-    R["registry.json<br/>50 entries"]
+    R["registry.json<br/>51 entries"]
     S["schema/*.schema.json<br/>registry · templates and stacks"]
     T["templates/*.json"]
     K["stacks/*.json"]
@@ -258,10 +258,10 @@ PSScriptAnalyzer; and gitleaks over the full history. Actions are pinned to comm
 
 ```
 .
-├── registry.json            # catalog of 50 MCP servers
+├── registry.json            # catalog of 51 MCP servers
 ├── registry.md              # human-readable index, generated from registry.json
 ├── schema/                  # JSON Schemas: registry.json, and templates/stacks
-├── templates/               # one opencode.json snippet per server (50)
+├── templates/               # one opencode.json snippet per server (51)
 ├── stacks/                  # 7 named server bundles
 ├── scripts/
 │   ├── mcp-manager.mjs      # CLI: list / search / add / stack
