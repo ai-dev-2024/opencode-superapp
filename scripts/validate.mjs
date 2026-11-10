@@ -1,18 +1,13 @@
-// validate.mjs — checks registry.json (against schema/registry.schema.json), templates/*.json
-// and stacks/*.json for schema correctness and cross-file consistency. Counts are measured
-// from the files, not hardcoded.
+// validate.mjs — checks registry.json (against schema/registry.schema.json), every
+// templates/*.json and stacks/*.json (against schema/config.schema.json), their cross-file
+// consistency, opencode.example.json, and scans all of them for token-shaped literals.
+// Counts are measured from the files, not hardcoded.
 // Usage: node scripts/validate.mjs [kitDir]
-import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { KIT, validateKit } from "./lib/registry.mjs";
 
 const kit = process.argv[2] ? resolve(process.argv[2]) : KIT;
 const { errors, stats } = validateKit(kit);
-
-const example = resolve(kit, "opencode.example.json");
-if (existsSync(example)) {
-  try { JSON.parse(readFileSync(example, "utf8")); } catch (e) { errors.push(`opencode.example.json: ${e.message}`); }
-}
 
 for (const e of errors) console.error("FAIL:", e);
 if (stats.servers !== undefined) {

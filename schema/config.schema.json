@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/muhib-karim/opencode-superapp/schema/config.schema.json",
+  "title": "opencode-superapp template or stack file",
+  "description": "Shape of templates/<id>.json and stacks/<name>.json: an OpenCode config fragment that holds only MCP servers. Checked by scripts/validate.mjs. Rules this JSON Schema subset cannot express (local => command, remote => url, entry equals registry.json) are enforced in scripts/lib/registry.mjs.",
+  "type": "object",
+  "required": ["$schema", "mcp"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "const": "https://opencode.ai/config.json" },
+    "mcp": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "pattern": "^[a-z0-9][a-z0-9_-]*$" },
+      "additionalProperties": {
+        "type": "object",
+        "required": ["type", "enabled"],
+        "additionalProperties": false,
+        "properties": {
+          "type": { "type": "string", "enum": ["local", "remote"] },
+          "enabled": { "type": "boolean" },
+          "command": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+          "environment": { "type": "object", "additionalProperties": { "type": "string" } },
+          "url": { "type": "string", "pattern": "^https://\\S+$" },
+          "headers": { "type": "object", "additionalProperties": { "type": "string" } },
+          "oauth": { "type": ["boolean", "object"] },
+          "timeout": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

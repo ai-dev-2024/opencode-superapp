@@ -4,42 +4,42 @@ Search: Ctrl+F this file, or run `node scripts/mcp-manager.mjs search <query>`. 
 
 | # | ID | Type | Title | Stacks | Secrets | Install |
 |---|---|---|---|---|---|---|
-| 1 | `filesystem` | local | Filesystem | web-dev | — | `npx -y @modelcontextprotocol/server-filesystem` |
-| 2 | `git` | local | Git | web-dev, devops | — | `uvx mcp-server-git` |
+| 1 | `filesystem` | local | Filesystem | web-dev, superapp | — | `npx -y @modelcontextprotocol/server-filesystem` |
+| 2 | `git` | local | Git | web-dev | — | `uvx mcp-server-git` |
 | 3 | `github` | local | GitHub | web-dev, devops | GITHUB_PERSONAL_ACCESS_TOKEN | `docker pull ghcr.io/github/github-mcp-server` |
-| 4 | `gitlab` | local | GitLab | web-dev, devops | GITLAB_PERSONAL_ACCESS_TOKEN | `npx -y @modelcontextprotocol/server-gitlab` |
+| 4 | `gitlab` | local | GitLab | devops | GITLAB_PERSONAL_ACCESS_TOKEN | `npx -y @modelcontextprotocol/server-gitlab` |
 | 5 | `postgres` | local | PostgreSQL | data-analysis | POSTGRES_CONNECTION_STRING | `npx -y @modelcontextprotocol/server-postgres` |
 | 6 | `sqlite` | local | SQLite | data-analysis | SQLITE_DB_PATH | `uvx mcp-server-sqlite` |
 | 7 | `mysql` | local | MySQL / MariaDB | data-analysis | MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE | `npx -y @benborla29/mcp-server-mysql` |
 | 8 | `mongodb` | local | MongoDB | data-analysis | MONGODB_URI | `npx -y mongodb-mcp-server` |
-| 9 | `redis` | local | Redis | data-analysis, devops | REDIS_URL | `npx -y @gongrzhe/server-redis-mcp` |
+| 9 | `redis` | local | Redis | data-analysis | REDIS_URL | `npx -y @gongrzhe/server-redis-mcp` |
 | 10 | `supabase` | local | Supabase | data-analysis, web-dev | SUPABASE_ACCESS_TOKEN, SUPABASE_PROJECT_REF | `npx -y @supabase/mcp-server-supabase@latest` |
-| 11 | `prisma` | remote | Prisma Postgres | data-analysis, web-dev | OAuth | (remote — `opencode mcp auth prisma`) |
-| 12 | `neon` | remote | Neon Postgres | data-analysis, devops | NEON_API_KEY | `(remote — no install)` |
-| 13 | `playwright` | local | Playwright | web-dev, testing | — | `npx @playwright/mcp@latest --install` |
+| 11 | `prisma` | remote | Prisma Postgres | data-analysis | OAuth | (remote — `opencode mcp auth prisma`) |
+| 12 | `neon` | remote | Neon Postgres | data-analysis | NEON_API_KEY | `(remote — no install)` |
+| 13 | `playwright` | local | Playwright | web-dev, testing, superapp | — | `npx @playwright/mcp@latest --install` |
 | 14 | `puppeteer` | local | Puppeteer | web-dev, testing | — | `npx -y @modelcontextprotocol/server-puppeteer` |
 | 15 | `chrome-devtools` | local | Chrome DevTools | web-dev, testing | — | `npx chrome-devtools-mcp@latest` |
 | 16 | `sentry` | remote | Sentry | devops | OAuth | (remote — no install; run `opencode mcp auth sentry`) |
-| 17 | `context7` | remote | Context7 | web-dev, ai-search | OAuth | `(remote — no install)` |
-| 18 | `gh_grep` | remote | Grep by Vercel | web-dev, ai-search | OAuth | `(remote — no install)` |
+| 17 | `context7` | remote | Context7 | web-dev, ai-search, superapp | OAuth | `(remote — no install)` |
+| 18 | `gh_grep` | remote | Grep by Vercel | web-dev, ai-search, superapp | OAuth | `(remote — no install)` |
 | 19 | `brave-search` | local | Brave Search | ai-search | BRAVE_API_KEY | `npx -y @modelcontextprotocol/server-brave-search` |
 | 20 | `tavily` | local | Tavily Search | ai-search | TAVILY_API_KEY | `npx -y tavily-mcp@latest` |
 | 21 | `exa` | remote | Exa Search | ai-search | EXA_API_KEY | `(remote — no install)` |
 | 22 | `firecrawl` | remote | Firecrawl | ai-search, testing | FIRECRAWL_API_KEY | `(remote — no install)` |
-| 23 | `fetch` | local | Fetch | web-dev, ai-search | — | `uvx mcp-server-fetch` |
-| 24 | `memory` | local | Memory (KG) | data-analysis, ai-search | — | `npx -y @modelcontextprotocol/server-memory` |
-| 25 | `sequential-thinking` | local | Sequential Thinking | data-analysis, ai-search | — | `npx -y @modelcontextprotocol/server-sequential-thinking` |
-| 26 | `time` | local | Time | productivity, ai-search | — | `uvx mcp-server-time` |
+| 23 | `fetch` | local | Fetch | web-dev, ai-search, superapp, testing | — | `uvx mcp-server-fetch` |
+| 24 | `memory` | local | Memory (KG) | data-analysis, ai-search, superapp | — | `npx -y @modelcontextprotocol/server-memory` |
+| 25 | `sequential-thinking` | local | Sequential Thinking | data-analysis, ai-search, superapp | — | `npx -y @modelcontextprotocol/server-sequential-thinking` |
+| 26 | `time` | local | Time | productivity, superapp, testing | — | `uvx mcp-server-time` |
 | 27 | `everything` | local | Everything (test) | testing | — | `npx -y @modelcontextprotocol/server-everything` |
 | 28 | `slack` | local | Slack | productivity | SLACK_BOT_TOKEN, SLACK_TEAM_ID | `npx -y @zencoderai/slack-mcp-server` |
 | 29 | `discord` | local | Discord | productivity | DISCORD_TOKEN | `npx -y mcp-discord` |
 | 30 | `linear` | remote | Linear | productivity | OAuth | (remote — `opencode mcp auth linear`) |
 | 31 | `notion` | local | Notion | productivity | NOTION_API_KEY | `npx -y @notionhq/notion-mcp-server` |
 | 32 | `figma` | remote | Figma | web-dev | OAuth | (remote — `opencode mcp auth figma`) |
-| 33 | `stripe` | remote | Stripe | web-dev | OAuth | (remote — `opencode mcp auth stripe`) |
-| 34 | `vercel` | remote | Vercel | web-dev, devops | OAuth | (remote — `opencode mcp auth vercel`) |
-| 35 | `netlify` | local | Netlify | web-dev, devops | NETLIFY_AUTH_TOKEN | `npx -y @netlify/mcp` |
-| 36 | `cloudflare` | local | Cloudflare | web-dev, devops | CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID | `npx -y @cloudflare/mcp-server-cloudflare@latest run <account-id>` |
+| 33 | `stripe` | remote | Stripe |  | OAuth | (remote — `opencode mcp auth stripe`) |
+| 34 | `vercel` | remote | Vercel | web-dev | OAuth | (remote — `opencode mcp auth vercel`) |
+| 35 | `netlify` | local | Netlify | web-dev | NETLIFY_AUTH_TOKEN | `npx -y @netlify/mcp` |
+| 36 | `cloudflare` | local | Cloudflare | devops | CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID | `npx -y @cloudflare/mcp-server-cloudflare@latest run <account-id>` |
 | 37 | `aws-docs` | local | AWS Docs | devops | — | `uvx awslabs.aws-documentation-mcp-server@latest` |
 | 38 | `azure` | local | Azure | devops | — | `npx -y @azure/mcp@latest server start` |
 | 39 | `docker` | local | Docker | devops | — | `uvx mcp-server-docker` |
@@ -53,7 +53,7 @@ Search: Ctrl+F this file, or run `node scripts/mcp-manager.mjs search <query>`. 
 | 47 | `google-drive` | local | Google Drive | productivity | GDRIVE_OAUTH_PATH, GDRIVE_CREDS_PATH | `npx -y @modelcontextprotocol/server-gdrive` |
 | 48 | `obsidian` | local | Obsidian | productivity | OBSIDIAN_VAULT_PATH | `npx -y mcp-obsidian` |
 | 49 | `shadcn` | local | shadcn/ui | web-dev | — | `npx shadcn@latest mcp` |
-| 50 | `youtube-transcript` | local | YouTube Transcript | ai-search, productivity | — | `uvx mcp-youtube-transcript` |
+| 50 | `youtube-transcript` | local | YouTube Transcript | ai-search | — | `uvx mcp-youtube-transcript` |
 
 ## Notes
 

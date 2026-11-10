@@ -36,11 +36,13 @@ ever writing a secret to disk.
 - **Searchable CLI** (`scripts/mcp-manager.mjs`): `list`, `search`, `add` and `stack`. It
   deep-merges the `mcp` section and never deletes your other config keys.
 - **Secret hygiene**: templates use only `{env:VAR}` placeholders. The installer prints
-  `export` hints and never writes key values, and the validator rejects common literal-token
-  patterns (`ghp_`, `xoxb-`, `AKIA`, `sk-live`).
+  `export` hints and never writes key values. The validator rejects literal credentials and
+  token-shaped strings (GitHub, Slack, AWS, Stripe, GitLab, `sk-` keys, private keys) in the
+  registry, templates, stacks and the example config.
 - **Schema-validated**: `registry.json` is checked against a
-  [JSON Schema](schema/registry.schema.json), and its entries are cross-checked against the
-  templates and stacks. Counts are measured from the files, not hardcoded.
+  [JSON Schema](schema/registry.schema.json), and every template and stack against
+  [another](schema/config.schema.json). Each template must equal its registry entry and each
+  stack entry must equal its template. Counts are measured from the files, not hardcoded.
 - **Cross-platform installers**: `install.sh` (macOS/Linux/WSL) and `install.ps1` (Windows),
   each with an interactive menu.
 

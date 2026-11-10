@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://github.com/muhib-karim/opencode-superapp/schema/registry.schema.json",
   "title": "opencode-superapp MCP registry",
-  "description": "Shape of registry.json. Checked by scripts/validate.mjs (zero-dependency validator in scripts/lib/schema.mjs). Conditional rules (local => command, remote => url) are enforced in scripts/lib/registry.mjs.",
+  "description": "Shape of registry.json. Checked by scripts/validate.mjs (zero-dependency validator in scripts/lib/schema.mjs). Rules this JSON Schema subset cannot express (local => command, remote => url, toolsPrefix matches id, stacks match stacks/*.json, env placeholders declared) are enforced in scripts/lib/registry.mjs.",
   "type": "array",
   "minItems": 1,
   "items": {
@@ -15,10 +15,10 @@
       "description": { "type": "string", "minLength": 1 },
       "type": { "type": "string", "enum": ["local", "remote"] },
       "category": { "type": "string", "minLength": 1 },
-      "stacks": { "type": "array", "items": { "type": "string", "pattern": "^[a-z0-9-]+$" } },
+      "stacks": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z0-9-]+$" } },
       "command": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
       "environment": { "type": "object", "additionalProperties": { "type": "string" } },
-      "url": { "type": "string", "pattern": "^https://" },
+      "url": { "type": "string", "pattern": "^https://\\S+$" },
       "headers": { "type": "object", "additionalProperties": { "type": "string" } },
       "oauth": { "type": ["boolean", "object"] },
       "envVars": {
@@ -30,7 +30,7 @@
           "properties": {
             "name": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
             "required": { "type": "boolean" },
-            "desc": { "type": "string" }
+            "desc": { "type": "string", "minLength": 1 }
           }
         }
       },
