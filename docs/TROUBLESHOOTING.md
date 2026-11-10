@@ -26,7 +26,7 @@ Minimal local (`templates/fetch.json` pattern):
 {
   "$schema": "https://opencode.ai/config.json",
   "mcp": {
-    "fetch": { "type": "local", "command": ["npx", "-y", "@modelcontextprotocol/server-fetch"], "enabled": true }
+    "fetch": { "type": "local", "command": ["uvx", "mcp-server-fetch"], "enabled": true }
   }
 }
 ```

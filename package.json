@@ -30,6 +30,7 @@
     "add": "node scripts/mcp-manager.mjs add",
     "stack": "node scripts/mcp-manager.mjs stack",
     "validate": "node scripts/validate.mjs",
+    "check:upstream": "node scripts/check-upstream.mjs",
     "test": "node --test test/*.test.mjs"
   }
 }

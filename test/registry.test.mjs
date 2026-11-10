@@ -45,6 +45,20 @@ test("templates never contain literal secrets; secrets use {env:VAR} placeholder
   }
 });
 
+test("no shell-style placeholders: OpenCode only expands {env:VAR}", () => {
+  // "${VAR}", "$VAR" and "%VAR%" reach the server as literal text, so the server cannot start.
+  const shellish = /\$\{[^}]*\}|\$[A-Za-z_][A-Za-z0-9_]*|%[A-Za-z_][A-Za-z0-9_]*%/;
+  for (const r of registry) {
+    const fields = JSON.stringify([r.command, r.environment, r.url, r.headers]);
+    assert.doesNotMatch(fields, shellish, `registry.json: ${r.id}`);
+  }
+  for (const dir of ["templates", "stacks"]) {
+    for (const f of readdirSync(join(KIT, dir)).filter((f) => f.endsWith(".json"))) {
+      assert.doesNotMatch(JSON.stringify(readJ(join(KIT, dir, f)).mcp), shellish, `${dir}/${f}`);
+    }
+  }
+});
+
 test("superapp stack is keyless (no required env vars)", () => {
   assert.deepEqual(missingEnvFor(registry, stackIds("superapp")), []);
 });

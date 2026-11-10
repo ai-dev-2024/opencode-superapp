@@ -28,7 +28,7 @@
     "exa": {
       "enabled": true,
       "type": "remote",
-      "url": "https://mcp.exa.ai/sse",
+      "url": "https://mcp.exa.ai/mcp",
       "headers": {
         "Authorization": "Bearer {env:EXA_API_KEY}"
       },
@@ -47,9 +47,8 @@
       "enabled": true,
       "type": "local",
       "command": [
-        "npx",
-        "-y",
-        "@modelcontextprotocol/server-fetch"
+        "uvx",
+        "mcp-server-fetch"
       ]
     },
     "context7": {

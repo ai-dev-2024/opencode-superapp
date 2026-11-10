@@ -7,10 +7,10 @@
       "command": [
         "npx",
         "-y",
-        "@netlify/mcp-server@latest"
+        "@netlify/mcp"
       ],
       "environment": {
-        "NETLIFY_AUTH_TOKEN": "{env:NETLIFY_AUTH_TOKEN}"
+        "NETLIFY_PERSONAL_ACCESS_TOKEN": "{env:NETLIFY_AUTH_TOKEN}"
       }
     }
   }

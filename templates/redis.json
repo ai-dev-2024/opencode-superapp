@@ -8,11 +8,8 @@
         "npx",
         "-y",
         "@gongrzhe/server-redis-mcp",
-        "redis://localhost:6379"
-      ],
-      "environment": {
-        "REDIS_URL": "{env:REDIS_URL}"
-      }
+        "{env:REDIS_URL}"
+      ]
     }
   }
 }

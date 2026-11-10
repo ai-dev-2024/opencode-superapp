@@ -3,16 +3,9 @@
   "mcp": {
     "stripe": {
       "enabled": true,
-      "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "@stripe/mcp-server",
-        "--tools=all"
-      ],
-      "environment": {
-        "STRIPE_SECRET_KEY": "{env:STRIPE_SECRET_KEY}"
-      }
+      "type": "remote",
+      "url": "https://mcp.stripe.com",
+      "oauth": {}
     }
   }
 }

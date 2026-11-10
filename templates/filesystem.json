@@ -8,7 +8,7 @@
         "npx",
         "-y",
         "@modelcontextprotocol/server-filesystem",
-        "${ALLOWED_DIR}"
+        "."
       ]
     }
   }

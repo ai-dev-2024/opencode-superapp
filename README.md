@@ -21,7 +21,7 @@ Out of the box it has no *tools*: no repo access, memory, live docs, web search 
 Those come from [MCP (Model Context Protocol)](https://modelcontextprotocol.io) servers.
 
 **OpenCode SuperApp** fills that gap. It is a curated, validated registry of
-**50 MCP servers** (37 local, 13 remote), grouped into **7 ready-made stacks**, plus a
+**50 MCP servers** (36 local, 14 remote), grouped into **7 ready-made stacks**, plus a
 **zero-dependency Node.js CLI** that merges them into your `opencode.json` without
 ever writing a secret to disk.
 
@@ -85,6 +85,9 @@ This merges 8 servers into `./opencode.json` (or pass `--config <path>` / `--glo
 | `context7` | pull current docs for a library |
 | `gh_grep` | search public GitHub code for real examples (grep.app) |
 | `playwright` | drive a real browser: click, fill, screenshot |
+
+Six of these run through `npx`. `fetch` and `time` are the official Python reference servers,
+so they also need [`uv`](https://docs.astral.sh/uv/) (`uvx`) on your PATH.
 
 Verify inside OpenCode with `opencode mcp list`.
 

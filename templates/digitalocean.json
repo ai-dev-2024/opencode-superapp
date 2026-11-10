@@ -3,12 +3,17 @@
   "mcp": {
     "digitalocean": {
       "enabled": true,
-      "type": "remote",
-      "url": "https://mcp.digitalocean.com/sse",
-      "headers": {
-        "Authorization": "Bearer {env:DIGITALOCEAN_API_TOKEN}"
-      },
-      "oauth": false
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@digitalocean/mcp",
+        "--services",
+        "apps,droplets,databases"
+      ],
+      "environment": {
+        "DIGITALOCEAN_API_TOKEN": "{env:DIGITALOCEAN_API_TOKEN}"
+      }
     }
   }
 }

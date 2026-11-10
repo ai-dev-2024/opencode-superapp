@@ -4,7 +4,7 @@
     "neon": {
       "enabled": true,
       "type": "remote",
-      "url": "https://mcp.neon.tech/sse",
+      "url": "https://mcp.neon.tech/mcp",
       "headers": {
         "Authorization": "Bearer {env:NEON_API_KEY}"
       },

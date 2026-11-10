@@ -7,7 +7,7 @@
       "command": [
         "npx",
         "-y",
-        "@corail-research/slack-mcp-server"
+        "@zencoderai/slack-mcp-server"
       ],
       "environment": {
         "SLACK_BOT_TOKEN": "{env:SLACK_BOT_TOKEN}",
@@ -29,7 +29,7 @@
     "linear": {
       "enabled": true,
       "type": "remote",
-      "url": "https://mcp.linear.app/sse",
+      "url": "https://mcp.linear.app/mcp",
       "oauth": {}
     },
     "notion": {
@@ -65,9 +65,8 @@
         "@modelcontextprotocol/server-gdrive"
       ],
       "environment": {
-        "GOOGLE_CLIENT_ID": "{env:GOOGLE_CLIENT_ID}",
-        "GOOGLE_CLIENT_SECRET": "{env:GOOGLE_CLIENT_SECRET}",
-        "GDRIVE_CREDS_PATH": "{env:GDRIVE_CREDS_PATH}"
+        "GDRIVE_OAUTH_PATH": "{env:GDRIVE_OAUTH_PATH}",
+        "GDRIVE_CREDENTIALS_PATH": "{env:GDRIVE_CREDS_PATH}"
       }
     },
     "obsidian": {
@@ -87,9 +86,8 @@
       "enabled": true,
       "type": "local",
       "command": [
-        "npx",
-        "-y",
-        "@modelcontextprotocol/server-time"
+        "uvx",
+        "mcp-server-time"
       ]
     }
   }

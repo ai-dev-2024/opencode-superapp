@@ -4,7 +4,7 @@
     "linear": {
       "enabled": true,
       "type": "remote",
-      "url": "https://mcp.linear.app/sse",
+      "url": "https://mcp.linear.app/mcp",
       "oauth": {}
     }
   }

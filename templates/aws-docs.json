@@ -6,7 +6,7 @@
       "type": "local",
       "command": [
         "uvx",
-        "awslabs.aws-docs-mcp-server@latest"
+        "awslabs.aws-documentation-mcp-server@latest"
       ],
       "environment": {
         "AWS_REGION": "{env:AWS_REGION}"

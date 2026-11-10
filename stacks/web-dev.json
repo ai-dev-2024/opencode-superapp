@@ -8,7 +8,7 @@
         "npx",
         "-y",
         "@modelcontextprotocol/server-filesystem",
-        "${ALLOWED_DIR}"
+        "."
       ]
     },
     "git": {
@@ -39,9 +39,8 @@
       "enabled": true,
       "type": "local",
       "command": [
-        "npx",
-        "-y",
-        "@modelcontextprotocol/server-fetch"
+        "uvx",
+        "mcp-server-fetch"
       ]
     },
     "playwright": {
@@ -87,10 +86,10 @@
       "command": [
         "npx",
         "-y",
-        "@netlify/mcp-server@latest"
+        "@netlify/mcp"
       ],
       "environment": {
-        "NETLIFY_AUTH_TOKEN": "{env:NETLIFY_AUTH_TOKEN}"
+        "NETLIFY_PERSONAL_ACCESS_TOKEN": "{env:NETLIFY_AUTH_TOKEN}"
       }
     },
     "shadcn": {
