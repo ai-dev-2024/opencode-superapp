@@ -1,5 +1,7 @@
 # Registry — 50 MCP servers
 
+<!-- Generated from registry.json by scripts/gen-registry-md.mjs. Do not edit by hand: run `npm run gen:registry`. -->
+
 Search: Ctrl+F this file, or run `node scripts/mcp-manager.mjs search <query>`. Templates: `templates/<id>.json`.
 
 | # | ID | Type | Title | Stacks | Secrets | Install |
@@ -20,8 +22,8 @@ Search: Ctrl+F this file, or run `node scripts/mcp-manager.mjs search <query>`. 
 | 14 | `puppeteer` | local | Puppeteer | web-dev, testing | — | `npx -y @modelcontextprotocol/server-puppeteer` |
 | 15 | `chrome-devtools` | local | Chrome DevTools | web-dev, testing | — | `npx chrome-devtools-mcp@latest` |
 | 16 | `sentry` | remote | Sentry | devops | OAuth | (remote — no install; run `opencode mcp auth sentry`) |
-| 17 | `context7` | remote | Context7 | web-dev, ai-search, superapp | OAuth | `(remote — no install)` |
-| 18 | `gh_grep` | remote | Grep by Vercel | web-dev, ai-search, superapp | OAuth | `(remote — no install)` |
+| 17 | `context7` | remote | Context7 | web-dev, ai-search, superapp | — | `(remote — no install)` |
+| 18 | `gh_grep` | remote | Grep by Vercel | web-dev, ai-search, superapp | — | `(remote — no install)` |
 | 19 | `brave-search` | local | Brave Search | ai-search | BRAVE_API_KEY | `npx -y @modelcontextprotocol/server-brave-search` |
 | 20 | `tavily` | local | Tavily Search | ai-search | TAVILY_API_KEY | `npx -y tavily-mcp@latest` |
 | 21 | `exa` | remote | Exa Search | ai-search | EXA_API_KEY | `(remote — no install)` |
@@ -36,7 +38,7 @@ Search: Ctrl+F this file, or run `node scripts/mcp-manager.mjs search <query>`. 
 | 30 | `linear` | remote | Linear | productivity | OAuth | (remote — `opencode mcp auth linear`) |
 | 31 | `notion` | local | Notion | productivity | NOTION_API_KEY | `npx -y @notionhq/notion-mcp-server` |
 | 32 | `figma` | remote | Figma | web-dev | OAuth | (remote — `opencode mcp auth figma`) |
-| 33 | `stripe` | remote | Stripe |  | OAuth | (remote — `opencode mcp auth stripe`) |
+| 33 | `stripe` | remote | Stripe | — | OAuth | (remote — `opencode mcp auth stripe`) |
 | 34 | `vercel` | remote | Vercel | web-dev | OAuth | (remote — `opencode mcp auth vercel`) |
 | 35 | `netlify` | local | Netlify | web-dev | NETLIFY_AUTH_TOKEN | `npx -y @netlify/mcp` |
 | 36 | `cloudflare` | local | Cloudflare | devops | CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID | `npx -y @cloudflare/mcp-server-cloudflare@latest run <account-id>` |

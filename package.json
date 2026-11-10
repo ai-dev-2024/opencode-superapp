@@ -30,7 +30,9 @@
     "add": "node scripts/mcp-manager.mjs add",
     "stack": "node scripts/mcp-manager.mjs stack",
     "validate": "node scripts/validate.mjs",
+    "gen:registry": "node scripts/gen-registry-md.mjs",
+    "check:registry": "node scripts/gen-registry-md.mjs --check",
     "check:upstream": "node scripts/check-upstream.mjs",
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test"
   }
 }

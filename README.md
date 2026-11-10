@@ -28,7 +28,8 @@ ever writing a secret to disk.
 ## Key features
 
 - **Curated registry**: [`registry.json`](registry.json) describes each server (transport, command or URL,
-  required env vars, category, stacks). A human-readable index is in [registry.md](registry.md).
+  required env vars, category, stacks). A human-readable index, [registry.md](registry.md), is
+  generated from it.
 - **Standard templates**: one `templates/<id>.json` per server, in the official
   [OpenCode MCP config format](https://opencode.ai/docs/mcp-servers/).
 - **7 stacks**: `superapp`, `web-dev`, `data-analysis`, `devops`, `ai-search`, `productivity` and `testing`.
@@ -213,7 +214,6 @@ installer smoke test on every push and pull request.
   runtime (`npx`, `uvx` or Docker) and credentials. Run `opencode mcp list` / `opencode mcp debug <name>` to check.
 - The tests check the structure and safety of the registry, not that every third-party
   server package or URL is still live.
-- `registry.md` is maintained by hand alongside `registry.json`.
 - `install.ps1` is not covered by CI (Linux runner only).
 - The free-model list in [docs/FREE-MODELS.md](docs/FREE-MODELS.md) may change on OpenCode's side.
 

@@ -16,7 +16,9 @@ Thanks for helping grow the kit! A new MCP server is a great first PR.
 5. **Run `npm run validate && npm test`** — both must pass. The validator checks
    `registry.json` against `schema/registry.schema.json` and measures counts from the
    files, so there is no hardcoded count to bump.
-6. Update `registry.md` (regenerate), `README.md` counts, and `docs/STACKS.md` if needed.
+6. Regenerate `registry.md` with `npm run gen:registry` (never edit it by hand), and update
+   the `README.md` counts and `docs/STACKS.md` if they changed. The tests fail if they did
+   and you did not.
 
 ## Rules
 
