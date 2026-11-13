@@ -352,12 +352,13 @@
     ],
     "command": [
       "npx",
+      "-y",
       "@playwright/mcp@latest"
     ],
     "environment": {},
     "envVars": [],
     "toolsPrefix": "playwright_*",
-    "install": "npx @playwright/mcp@latest --install"
+    "install": "npx -y @playwright/mcp@latest --install"
   },
   {
     "id": "puppeteer",
@@ -391,12 +392,13 @@
     ],
     "command": [
       "npx",
+      "-y",
       "chrome-devtools-mcp@latest"
     ],
     "environment": {},
     "envVars": [],
     "toolsPrefix": "chrome-devtools_*",
-    "install": "npx chrome-devtools-mcp@latest"
+    "install": "npx -y chrome-devtools-mcp@latest"
   },
   {
     "id": "sentry",
@@ -944,6 +946,7 @@
     ],
     "command": [
       "npx",
+      "-y",
       "mcp-server-kubernetes"
     ],
     "environment": {
@@ -957,7 +960,7 @@
       }
     ],
     "toolsPrefix": "kubernetes_*",
-    "install": "npx mcp-server-kubernetes"
+    "install": "npx -y mcp-server-kubernetes"
   },
   {
     "id": "terraform",
@@ -1182,13 +1185,14 @@
     ],
     "command": [
       "npx",
+      "-y",
       "shadcn@latest",
       "mcp"
     ],
     "environment": {},
     "envVars": [],
     "toolsPrefix": "shadcn_*",
-    "install": "npx shadcn@latest mcp"
+    "install": "npx -y shadcn@latest mcp"
   },
   {
     "id": "youtube-transcript",

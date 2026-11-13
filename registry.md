@@ -18,9 +18,9 @@ Search: Ctrl+F this file, or run `node scripts/mcp-manager.mjs search <query>`. 
 | 10 | `supabase` | local | Supabase | data-analysis, web-dev | SUPABASE_ACCESS_TOKEN, SUPABASE_PROJECT_REF | `npx -y @supabase/mcp-server-supabase@latest` |
 | 11 | `prisma` | remote | Prisma Postgres | data-analysis | OAuth | (remote — `opencode mcp auth prisma`) |
 | 12 | `neon` | remote | Neon Postgres | data-analysis | NEON_API_KEY | `(remote — no install)` |
-| 13 | `playwright` | local | Playwright | web-dev, testing, superapp | — | `npx @playwright/mcp@latest --install` |
+| 13 | `playwright` | local | Playwright | web-dev, testing, superapp | — | `npx -y @playwright/mcp@latest --install` |
 | 14 | `puppeteer` | local | Puppeteer | web-dev, testing | — | `npx -y @modelcontextprotocol/server-puppeteer` |
-| 15 | `chrome-devtools` | local | Chrome DevTools | web-dev, testing | — | `npx chrome-devtools-mcp@latest` |
+| 15 | `chrome-devtools` | local | Chrome DevTools | web-dev, testing | — | `npx -y chrome-devtools-mcp@latest` |
 | 16 | `sentry` | remote | Sentry | devops | OAuth | (remote — no install; run `opencode mcp auth sentry`) |
 | 17 | `context7` | remote | Context7 | web-dev, ai-search, superapp | — | `(remote — no install)` |
 | 18 | `gh_grep` | remote | Grep by Vercel | web-dev, ai-search, superapp | — | `(remote — no install)` |
@@ -45,7 +45,7 @@ Search: Ctrl+F this file, or run `node scripts/mcp-manager.mjs search <query>`. 
 | 37 | `aws-docs` | local | AWS Docs | devops | — | `uvx awslabs.aws-documentation-mcp-server@latest` |
 | 38 | `azure` | local | Azure | devops | — | `npx -y @azure/mcp@latest server start` |
 | 39 | `docker` | local | Docker | devops | — | `uvx mcp-server-docker` |
-| 40 | `kubernetes` | local | Kubernetes | devops | — | `npx mcp-server-kubernetes` |
+| 40 | `kubernetes` | local | Kubernetes | devops | — | `npx -y mcp-server-kubernetes` |
 | 41 | `terraform` | local | Terraform | devops | — | `docker pull hashicorp/terraform-mcp-server` |
 | 42 | `digitalocean` | local | DigitalOcean | devops | DIGITALOCEAN_API_TOKEN | `npx -y @digitalocean/mcp --services apps,droplets,databases` |
 | 43 | `grafana` | local | Grafana | devops | GRAFANA_URL, GRAFANA_API_KEY | `docker pull grafana/mcp-grafana:latest` |
@@ -54,7 +54,7 @@ Search: Ctrl+F this file, or run `node scripts/mcp-manager.mjs search <query>`. 
 | 46 | `atlassian-confluence` | remote | Confluence | productivity | OAuth | (remote — `opencode mcp auth atlassian-confluence`) |
 | 47 | `google-drive` | local | Google Drive | productivity | GDRIVE_OAUTH_PATH, GDRIVE_CREDS_PATH | `npx -y @modelcontextprotocol/server-gdrive` |
 | 48 | `obsidian` | local | Obsidian | productivity | OBSIDIAN_VAULT_PATH | `npx -y mcp-obsidian` |
-| 49 | `shadcn` | local | shadcn/ui | web-dev | — | `npx shadcn@latest mcp` |
+| 49 | `shadcn` | local | shadcn/ui | web-dev | — | `npx -y shadcn@latest mcp` |
 | 50 | `youtube-transcript` | local | YouTube Transcript | ai-search | — | `uvx mcp-youtube-transcript` |
 
 ## Notes
@@ -84,11 +84,11 @@ Search: Ctrl+F this file, or run `node scripts/mcp-manager.mjs search <query>`. 
 - **neon** (remote) — Serverless Postgres branches, branching and SQL via Neon remote MCP.  
   `https://mcp.neon.tech/mcp` — template `templates/neon.json`
 - **playwright** (local) — Headless browser automation: navigate, click, fill, screenshot, a11y snapshot.  
-  `npx @playwright/mcp@latest` — template `templates/playwright.json`
+  `npx -y @playwright/mcp@latest` — template `templates/playwright.json`
 - **puppeteer** (local) — Lightweight Chrome automation fallback when Playwright is too heavy.  
   `npx -y @modelcontextprotocol/server-puppeteer` — template `templates/puppeteer.json`
 - **chrome-devtools** (local) — Official Chrome DevTools MCP: performance traces, network, console.  
-  `npx chrome-devtools-mcp@latest` — template `templates/chrome-devtools.json`
+  `npx -y chrome-devtools-mcp@latest` — template `templates/chrome-devtools.json`
 - **sentry** (remote) — Query issues, releases, traces. OAuth remote — `opencode mcp auth sentry`.  
   `https://mcp.sentry.dev/mcp` — template `templates/sentry.json`
 - **context7** (remote) — Up-to-date library docs lookup. Add `use context7` to prompts.  
@@ -138,7 +138,7 @@ Search: Ctrl+F this file, or run `node scripts/mcp-manager.mjs search <query>`. 
 - **docker** (local) — Containers, images, volumes, compose (socket-mounted).  
   `uvx mcp-server-docker` — template `templates/docker.json`
 - **kubernetes** (local) — Pods, deploys, logs, exec via current kubeconfig.  
-  `npx mcp-server-kubernetes` — template `templates/kubernetes.json`
+  `npx -y mcp-server-kubernetes` — template `templates/kubernetes.json`
 - **terraform** (local) — Official HashiCorp registry docs + provider lookup (Docker).  
   `docker run -i --rm hashicorp/terraform-mcp-server` — template `templates/terraform.json`
 - **digitalocean** (local) — Droplets, apps, databases via the official DigitalOcean MCP server.  
@@ -156,6 +156,6 @@ Search: Ctrl+F this file, or run `node scripts/mcp-manager.mjs search <query>`. 
 - **obsidian** (local) — Read/append markdown notes in a vault directory.  
   `npx -y mcp-obsidian {env:OBSIDIAN_VAULT_PATH}` — template `templates/obsidian.json`
 - **shadcn** (local) — Registry-aware component scaffolding for React + Tailwind.  
-  `npx shadcn@latest mcp` — template `templates/shadcn.json`
+  `npx -y shadcn@latest mcp` — template `templates/shadcn.json`
 - **youtube-transcript** (local) — Fetch captions/transcripts for summarization (uvx, Python).  
   `uvx mcp-youtube-transcript` — template `templates/youtube-transcript.json`

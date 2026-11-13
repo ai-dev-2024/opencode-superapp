@@ -157,6 +157,16 @@ function entryRuleErrors(r) {
   if (r.type === "local") {
     if (!Array.isArray(r.command)) errors.push(`${id}: local needs command[]`);
     for (const k of ["url", "headers", "oauth"]) if (Object.hasOwn(r, k)) errors.push(`${id}: local server must not set ${k}`);
+    // OpenCode spawns a local server without a TTY. If npx has to install the package it
+    // asks "Ok to proceed? (y)" and waits forever, so the server never comes up. -y/--yes
+    // must come before the package spec (npx stops parsing options at the first non-option).
+    if (Array.isArray(r.command) && r.command[0] === "npx") {
+      const leadingFlags = [];
+      for (const a of r.command.slice(1)) { if (typeof a !== "string" || !a.startsWith("-")) break; leadingFlags.push(a); }
+      if (!leadingFlags.some((a) => a === "-y" || a === "--yes")) {
+        errors.push(`${id}: npx must be given -y (or --yes) before the package, or it can hang waiting for "Ok to proceed?" in a non-interactive OpenCode session`);
+      }
+    }
   }
   if (r.type === "remote") {
     if (!r.url) errors.push(`${id}: remote needs url`);

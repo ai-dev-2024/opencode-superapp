@@ -197,6 +197,27 @@ test("validateKit enforces toolsPrefix, reserved ids and local/remote field rule
   assert.ok(errors.includes('servers: id is reserved by OpenCode under "mcp"'));
 });
 
+test("validateKit requires -y on npx so a local server cannot hang on the install prompt", () => {
+  const npxErrors = (errors) => errors.filter((e) => e.includes("npx must be given -y"));
+  const errors = errorsAfter((d) => {
+    editRegistry("playwright", (r) => { r.command = ["npx", "@playwright/mcp@latest"]; })(d);
+    editRegistry("chrome-devtools", (r) => { r.command = ["npx", "chrome-devtools-mcp@latest"]; })(d);
+    // npx stops parsing options at the package name, so a trailing -y is too late
+    editRegistry("shadcn", (r) => { r.command = ["npx", "shadcn@latest", "-y", "mcp"]; })(d);
+  });
+  for (const id of ["playwright", "chrome-devtools", "shadcn"]) {
+    assert.ok(npxErrors(errors).some((e) => e.startsWith(`${id}: `)), `${id} must be rejected without a leading -y`);
+  }
+
+  // -y and --yes are both accepted; non-npx runners are not affected
+  const accepted = errorsAfter((d) => {
+    editRegistry("playwright", (r) => { r.command = ["npx", "-y", "@playwright/mcp@latest"]; })(d);
+    editRegistry("chrome-devtools", (r) => { r.command = ["npx", "--yes", "chrome-devtools-mcp@latest"]; })(d);
+    editRegistry("shadcn", (r) => { r.command = ["npx", "-y", "shadcn@latest", "mcp"]; })(d);
+  });
+  assert.deepEqual(npxErrors(accepted), []);
+});
+
 test("validateKit enforces placeholder rules on registry entries", () => {
   const errors = errorsAfter((d) => {
     editRegistry("filesystem", (r) => { r.command[r.command.length - 1] = "${ALLOWED_DIR}"; })(d);
