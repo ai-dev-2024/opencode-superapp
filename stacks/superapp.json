@@ -42,7 +42,7 @@
     "playwright": {
       "enabled": true,
       "type": "local",
-      "command": ["npx", "@playwright/mcp@latest"]
+      "command": ["npx", "-y", "@playwright/mcp@latest"]
     }
   }
 }
